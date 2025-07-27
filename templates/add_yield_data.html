@@ -3,43 +3,137 @@
 {% block title %}Add Yield Data{% endblock %}
 
 {% block content %}
-<h2>Add Yield Data</h2>
+<style>
+    .add-yield-header {
+        background: linear-gradient(rgba(44, 85, 48, 0.9), rgba(74, 124, 89, 0.9)),
+                    url('https://images.unsplash.com/photo-1582515073490-d8c3f6f168d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        color: white;
+        padding: 50px 30px;
+        border-radius: 20px;
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-<form method="POST" action="{{ url_for('add_yield_data') }}">
-    <div>
-        <label for="field_id">Field:</label>
-        <select name="field_id" required>
-            {% for field in fields %}
-                <option value="{{ field.field_id }}">{{ field.name or field.field_id }}</option>
-            {% endfor %}
-        </select>
-    </div>
+    .add-yield-header h1 {
+        font-size: 2.5em;
+        margin: 0;
+    }
 
-    <div>
-        <label for="crop_type">Crop Type:</label>
-        <input type="text" name="crop_type" required>
-    </div>
+    .yield-form-container {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        max-width: 700px;
+        margin: 0 auto;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
 
-    <div>
-        <label for="harvest_date">Harvest Date:</label>
-        <input type="date" name="harvest_date" required>
-    </div>
+    .yield-form-group {
+        margin-bottom: 20px;
+    }
 
-    <div>
-        <label for="yield_amount">Yield Amount (kg):</label>
-        <input type="number" step="0.01" name="yield_amount" required>
-    </div>
+    .yield-form-group label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        color: #2c5530;
+    }
 
-    <div>
-        <label for="quality_grade">Quality Grade:</label>
-        <select name="quality_grade">
-            <option value="A">A (Excellent)</option>
-            <option value="B">B (Good)</option>
-            <option value="C">C (Average)</option>
-            <option value="D">D (Poor)</option>
-        </select>
-    </div>
+    .yield-form-group input,
+    .yield-form-group select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 2px solid #e1e5ea;
+        border-radius: 8px;
+        font-size: 1em;
+        transition: border-color 0.2s ease-in-out;
+    }
 
-    <button type="submit">Submit</button>
-</form>
+    .yield-form-group input:focus,
+    .yield-form-group select:focus {
+        border-color: #4a7c59;
+        outline: none;
+    }
+
+    .submit-btn {
+        background: #2c5530;
+        color: white;
+        padding: 12px 25px;
+        font-size: 1.1em;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        background: #3e6b47;
+    }
+
+    .form-note {
+        font-size: 0.9em;
+        color: #777;
+        margin-top: -10px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .add-yield-header {
+            padding: 30px 20px;
+        }
+
+        .yield-form-container {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="add-yield-header">
+    <h1><i class="fas fa-seedling"></i> Record New Yield Data</h1>
+</div>
+
+<div class="yield-form-container">
+    <form method="POST" action="{{ url_for('add_yield_data') }}">
+        <div class="yield-form-group">
+            <label for="field_id">Select Field</label>
+            <select name="field_id" required>
+                <option value="" disabled selected>-- Choose Field --</option>
+                {% for field in fields %}
+                    <option value="{{ field.field_id }}">{{ field.name or field.field_id }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="yield-form-group">
+            <label for="crop_type">Crop Type</label>
+            <input type="text" name="crop_type" placeholder="e.g. Wheat, Rice" required>
+        </div>
+
+        <div class="yield-form-group">
+            <label for="harvest_date">Harvest Date</label>
+            <input type="date" name="harvest_date" required>
+        </div>
+
+        <div class="yield-form-group">
+            <label for="yield_amount">Yield Amount (kg)</label>
+            <input type="number" name="yield_amount" step="0.01" placeholder="Enter yield in kilograms" required>
+        </div>
+
+        <div class="yield-form-group">
+            <label for="quality_grade">Quality Grade</label>
+            <select name="quality_grade">
+                <option value="A">Grade A - Excellent</option>
+                <option value="B">Grade B - Good</option>
+                <option value="C">Grade C - Average</option>
+                <option value="D">Grade D - Poor</option>
+            </select>
+        </div>
+
+        <div style="text-align: right;">
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-plus-circle"></i> Submit Yield
+            </button>
+        </div>
+    </form>
+</div>
 {% endblock %}
