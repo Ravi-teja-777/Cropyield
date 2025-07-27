@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Crop Yield Management{% endblock %}
+
+{% block content %}
+<style>
+    .admin-header {
+        background: linear-gradient(rgba(108, 117, 125, 0.9), rgba(90, 98, 104, 0.9)),
+                    url('https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .admin-header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+        padding: 35px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(108, 117, 125, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(108, 117, 125, 0.4);
+    }
+
+    .stat-card i {
+        font-size: 3.5em;
+        margin-bottom: 20px;
+        opacity: 0.9;
+    }
+
+    .stat-card h3 {
+        font-size: 3em;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    .stat-card p {
+        font-size: 1.2em;
+        opacity: 0.9;
+    }
+
+    .admin-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 40px 0;
+    }
+
+    .admin-action-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .admin-action-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        border-color: #6c757d;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .admin-action-card i {
+        font-size: 3em;
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+
+    .admin-action-card h3 {
+        color: #6c757d;
+        margin-bottom: 15px;
+        font-size: 1.4em;
+    }
+
+    .crop-stats-section {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin: 40px 0;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .crop-stats-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .crop-stats-header h2 {
+        color: #6c757d;
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .crop-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .crop-stat-item {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 15px;
+        border-left: 5px solid #6c757d;
+        transition: all 0.3s ease;
+    }
+
+    .crop-stat-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .crop-stat-item h4 {
+        color: #6c757d;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+    }
+
+    .crop-stat-detail {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px 0;
+    }
+
+    .crop-stat-label {
+        font-weight: 600;
+        color: #666;
+    }
+
+    .crop-stat-value {
+        font-weight: bold;
+        color: #6c757d;
+    }
+
+    .recent-data-section {
+        margin: 40px 0;
+    }
+
+    .section-title {
+        color: #6c757d;
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #6c757d;
+    }
+
+    .data-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table th {
+        background: #6c757d;
+        color: white;
+        font-weight: 600;
+        padding: 15px;
+    }
+
+    .table td {
+        padding: 15px;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    @media (max-width: 768px) {
+        .admin-header h1 {
+            font-size: 2em;
+        }
+        
+        .stats-overview {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .stat-card {
+            padding: 25px;
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5em;
+        }
+    }
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="admin-header">
+    <h1>🛡️ Admin Dashboard</h1>
+    <p style="font-size: 1.2em; margin-top: 10px;">System Overview & Management</p>
+</div>
+
+<div class="stats-overview">
+    <div class="stat-card">
+        <i class="fas fa-map-marked-alt"></i>
+        <h3>{{ total_fields }}</h3>
+        <p>Total Fields</p>
+    </div>
+
+    <div class="stat-card">
+        <i class="fas fa-chart-line"></i>
+        <h3>{{ total_yield_records }}</h3>
+        <p>Yield Records</p>
+    </div>
+
+    <div class="stat-card">
+        <i class="fas fa-seedling"></i>
+        <h3>{{ crop_stats|length }}</h3>
+        <p>Crop Types</p>
+    </div>
+
+    <div class="stat-card">
+        <i class="fas fa-users"></i>
+        <h3>Active</h3>
+        <p>System Status</p>
+    </div>
+</div>
+
+<div class="admin-actions">
+    <a href="/fields" class="admin-action-card">
+        <i class="fas fa-eye"></i>
+        <h3>View All Fields</h3>
+        <p>Monitor and manage all registered fields across the system</p>
+    </a>
+
+    <a href="/yield-data" class="admin-action-card">
+        <i class="fas fa-database"></i>
+        <h3>All Yield Data</h3>
+        <p>Access comprehensive yield records and analytics</p>
+    </a>
+
+    <a href="/weather" class="admin-action-card">
+        <i class="fas fa-cloud-sun"></i>
+        <h3>Weather Records</h3>
+        <p>View and manage weather data from all locations</p>
+    </a>
+
+    <a href="/api/yield-stats" class="admin-action-card">
+        <i class="fas fa-chart-pie"></i>
+        <h3>API Statistics</h3>
+        <p>Access detailed system statistics via API</p>
+    </a>
+</div>
+
+{% if crop_stats %}
+<div class="crop-stats-section">
+    <div class="crop-stats-header">
+        <h2><i class="fas fa-wheat-awn"></i> Crop Performance Overview</h2>
+        <p>Average yields and statistics by crop type</p>
+    </div>
+
+    <div class="crop-stats-grid">
+        {% for crop, stats in crop_stats.items() %}
+        <div class="crop-stat-item">
+            <h4>🌾 {{ crop }}</h4>
+            <div class="crop-stat-detail">
+                <span class="crop-stat-label">Total Records:</span>
+                <span class="crop-stat-value">{{ stats.count }}</span>
+            </div>
+            <div class="crop-stat-detail">
+                <span class="crop-stat-label">Average Yield:</span>
+                <span class="crop-stat-value">{{ "%.2f"|format(stats.average) }} kg</span>
+            </div>
+            <div class="crop-stat-detail">
+                <span class="crop-stat-label">Total Yield:</span>
+                <span class="crop-stat-value">{{ "%.2f"|format(stats.total) }} kg</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="recent-data-section">
+    <h2 class="section-title"><i class="fas fa-clock"></i> Recent Yield Records</h2>
+    
+    {% if recent_yields %}
+    <div class="data-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Crop Type</th>
+                    <th>Yield Amount</th>
+                    <th>Harvest Date</th>
+                    <th>Quality Grade</th>
+                    <th>Field ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for yield in recent_yields %}
+                <tr>
+                    <td><strong>{{ yield.crop_type }}</strong></td>
+                    <td>{{ yield.yield_amount }} kg</td>
+                    <td>{{ yield.harvest_date }}</td>
+                    <td>
+                        <span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 5px; font-size: 0.8em;">
+                            {{ yield.quality_grade }}
+                        </span>
+                    </td>
+                    <td><code>{{ yield.field_id[:8] }}...</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <i class="fas fa-inbox" style="font-size: 3em; margin-bottom: 20px; color: #ccc;"></i>
+        <h3>No yield records available</h3>
+        <p>Data will appear here as farmers add yield information.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Crop Yield Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .error-container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px;
+        }
+
+        .error-icon {
+            font-size: 6em;
+            color: #e74c3c;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .error-title {
+            font-size: 3em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .error-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 40px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .error-details h3 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .error-details p {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #2c5530, #4a7c59);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(44, 85, 48, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .help-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .help-section h3 {
+            color: #2c5530;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .help-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .help-link {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #666;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .help-link:hover {
+            background: #2c5530;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+        }
+
+        .help-link i {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 40px 20px;
+            }
+            
+            .error-title {
+                font-size: 2.5em;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .help-links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            {% if error == 'Page not found' %}
+                <i class="fas fa-search"></i>
+            {% else %}
+                <i class="fas fa-exclamation-triangle"></i>
+            {% endif %}
+        </div>
+
+        <h1 class="error-title">
+            {% if error == 'Page not found' %}
+                404
+            {% else %}
+                Oops!
+            {% endif %}
+        </h1>
+
+        <p class="error-message">
+            {% if error == 'Page not found' %}
+                The page you're looking for seems to have wandered off into the fields.
+            {% else %}
+                Something went wrong on our end. Don't worry, our team is working on it!
+            {% endif %}
+        </p>
+
+        <div class="error-details">
+            <h3><i class="fas fa-info-circle"></i> What happened?</h3>
+            <p>
+                {% if error == 'Page not found' %}
+                    The URL you entered doesn't exist or has been moved. This could be due to a typo in the address or an outdated link.
+                {% else %}
+                    {{ error }}. Our system encountered an unexpected issue while processing your request.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                Go Home
+            </a>
+            
+            <button onclick="history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </button>
+        </div>
+
+        <div class="help-section">
+            <h3><i class="fas fa-life-ring"></i> Need Help?</h3>
+            <p>Here are some things you can try:</p>
+            
+            <div class="help-links">
+                <a href="/dashboard" class="help-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <strong>Dashboard</strong>
+                    <br>Return to your main dashboard
+                </a>
+                
+                <a href="/fields" class="help-link">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <strong>Fields</strong>
+                    <br>Manage your agricultural fields
+                </a>
+                
+                <a href="/yield-data" class="help-link">
+                    <i class="fas fa-chart-line"></i>
+                    <strong>Yield Data</strong>
+                    <br>View crop yield records
+                </a>
+                
+                <a href="/weather" class="help-link">
+                    <i class="fas fa-cloud-sun"></i>
+                    <strong>Weather</strong>
+                    <br>Check weather information
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh for server errors after 30 seconds
+        {% if error != 'Page not found' %}
+        setTimeout(function() {
+            if (confirm('Would you like to try reloading the page? The issue might be resolved now.')) {
+                window.location.reload();
+            }
+        }, 30000);
+        {% endif %}
+    </script>
+</body>
+</html>

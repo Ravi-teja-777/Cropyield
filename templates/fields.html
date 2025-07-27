@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}Fields Management{% endblock %}
+
+{% block content %}
+<style>
+    .fields-header {
+        background: linear-gradient(rgba(44, 85, 48, 0.9), rgba(74, 124, 89, 0.9)),
+                    url('https://images.unsplash.com/photo-1500595046743-cd271d694d30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        color: white;
+        padding: 50px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .fields-header h1 {
+        font-size: 2.8em;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .fields-controls {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin: 30px 0;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 15px 20px 15px 50px;
+        border: 2px solid #e9ecef;
+        border-radius: 25px;
+        font-size: 1.1em;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        border-color: #2c5530;
+        box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+        outline: none;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        font-size: 1.2em;
+    }
+
+    .fields-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+    }
+
+    .field-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .field-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(45deg, #2c5530, #4a7c59);
+    }
+
+    .field-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-color: #2c5530;
+    }
+
+    .field-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .field-icon {
+        background: linear-gradient(45deg, #2c5530, #4a7c59);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+        margin-right: 15px;
+    }
+
+    .field-title {
+        flex: 1;
+    }
+
+    .field-title h3 {
+        color: #2c5530;
+        font-size: 1.4em;
+        margin-bottom: 5px;
+    }
+
+    .field-id {
+        color: #666;
+        font-size: 0.9em;
+        font-family: monospace;
+    }
+
+    .field-details {
+        margin: 20px 0;
+    }
+
+    .field-detail {
+        display: flex;
+        justify-content: space-between;
+        margin: 12px 0;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .field-detail:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        color: #2c5530;
+    }
+
+    .field-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+        justify-content: center;
+    }
+
+    .btn-sm {
+        padding: 8px 16px;
+        font-size: 0.9em;
+        border-radius: 8px;
+    }
+
+    .add-field-cta {
+        background: linear-gradient(rgba(44, 85, 48, 0.95), rgba(74, 124, 89, 0.95)),
+                    url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        color: white;
+        padding: 60px;
+        border-radius: 20px;
+        text-align: center;
+        margin: 40px 0;
+    }
+
+    .add-field-cta h2 {
+        font-size: 2.2em;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .add-field-cta p {
+        font-size: 1.2em;
+        margin-bottom: 25px;
+        opacity: 0.9;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 5em;
+        margin-bottom: 30px;
+        color: #ddd;
+    }
+
+    .empty-state h2 {
+        font-size: 2em;
+        margin-bottom: 15px;
+        color: #999;
+    }
+
+    @media (max-width: 768px) {
+        .fields-header {
+            padding: 30px 20px;
+        }
+        
+        .fields-header h1 {
+            font-size: 2.2em;
+        }
+        
+        .fields-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-box {
+            min-width: auto;
+        }
+        
+        .fields-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="fields-header">
+    <h1><i class="fas fa-map-marked-alt"></i> Fields Management</h1>
+    <p style="font-size: 1.2em; margin-top: 10px;">Manage and monitor your agricultural fields</p>
+</div>
+
+<div class="fields-controls">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search fields by name, location, or soil type..." id="fieldSearch">
+    </div>
+    <a href="/fields/add" class="btn">
+        <i class="fas fa-plus"></i> Add New Field
+    </a>
+</div>
+
+{% if fields %}
+<div class="fields-grid" id="fieldsGrid">
+    {% for field in fields %}
+    <div class="field-card" data-field-name="{{ field.field_name|lower }}" data-location="{{ field.location|lower }}" data-soil="{{ field.soil_type|lower }}">
+        <div class="field-header">
+            <div class="field-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="field-title">
+                <h3>{{ field.field_name }}</h3>
+                <div class="field-id">ID: {{ field.field_id[:8] }}...</div>
+            </div>
+        </div>
+
+        <div class="field-details">
+            <div class="field-detail">
+                <span class="detail-label">
+                    <i class="fas fa-map-marker-alt"></i> Location
+                </span>
+                <span class="detail-value">{{ field.location }}</span>
+            </div>
+
+            <div class="field-detail">
+                <span class="detail-label">
+                    <i class="fas fa-expand-arrows-alt"></i> Area
+                </span>
+                <span class="detail-value">{{ field.area_hectares }} hectares</span>
+            </div>
+
+            <div class="field-detail">
+                <span class="detail-label">
+                    <i class="fas fa-mountain"></i> Soil Type
+                </span>
+                <span class="detail-value">{{ field.soil_type }}</span>
+            </div>
+
+            <div class="field-detail">
+                <span class="detail-label">
+                    <i class="fas fa-calendar-plus"></i> Created
+                </span>
+                <span class="detail-value">{{ field.created_at[:10] }}</span>
+            </div>
+        </div>
+
+        <div class="field-actions">
+            <a href="/yield-data/add" class="btn btn-sm">
+                <i class="fas fa-chart-line"></i> Add Yield
+            </a>
+            <button class="btn btn-secondary btn-sm">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-map-marked-alt"></i>
+    <h2>No Fields Registered</h2>
+    <p style="font-size: 1.1em; margin-bottom: 30px;">Start your farm management journey by adding your first field.</p>
+    <a href="/fields/add" class="btn" style="font-size: 1.2em; padding: 15px 30px;">
+        <i class="fas fa-plus"></i> Add Your First Field
+    </a>
+</div>
+{% endif %}
+
+{% if fields %}
+<div class="add-field-cta">
+    <h2><i class="fas fa-plus-circle"></i> Ready to Add Another Field?</h2>
+    <p>Expand your farm management by registering additional fields</p>
+    <a href="/fields/add" class="btn" style="font-size: 1.1em;">
+        <i class="fas fa-plus"></i> Add New Field
+    </a>
+</div>
+{% endif %}
+
+<script>
+// Search functionality
+document.getElementById('fieldSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const fieldCards = document.querySelectorAll('.field-card');
+    
+    fieldCards.forEach(card => {
+        const fieldName = card.dataset.fieldName;
+        const location = card.dataset.location;
+        const soil = card.dataset.soil;
+        
+        if (fieldName.includes(searchTerm) || 
+            location.includes(searchTerm) || 
+            soil.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Yield Management System{% endblock %}
+
+{% block content %}
+<style>
+    .hero {
+        background: linear-gradient(rgba(44, 85, 48, 0.7), rgba(74, 124, 89, 0.7)),
+                    url('https://images.unsplash.com/photo-1560493160-45d69e32bf1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        color: white;
+        text-align: center;
+        padding: 100px 0;
+        border-radius: 20px;
+        margin: 20px 0;
+    }
+
+    .hero h1 {
+        font-size: 3.5em;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero p {
+        font-size: 1.3em;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin: 50px 0;
+    }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .feature-icon {
+        font-size: 3em;
+        margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+        color: #2c5530;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+    }
+
+    .cta-section {
+        background: linear-gradient(rgba(44, 85, 48, 0.9), rgba(74, 124, 89, 0.9)),
+                    url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        color: white;
+        text-align: center;
+        padding: 80px 40px;
+        border-radius: 20px;
+        margin: 50px 0;
+    }
+
+    .cta-section h2 {
+        font-size: 2.5em;
+        margin-bottom: 20px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2.5em;
+        }
+        
+        .hero p {
+            font-size: 1.1em;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+
+<div class="hero">
+    <h1>🌾 Smart Crop Yield Management</h1>
+    <p>Track, analyze, and optimize your agricultural productivity with advanced data insights</p>
+    <div style="margin-top: 30px;">
+        <a href="/register" class="btn" style="margin: 0 10px;">Get Started</a>
+        <a href="/login" class="btn btn-secondary" style="margin: 0 10px;">Login</a>
+    </div>
+</div>
+
+<div class="features">
+    <div class="feature-card">
+        <div class="feature-icon">🏞️</div>
+        <h3>Field Management</h3>
+        <p>Organize and track multiple fields with detailed information about location, soil type, and area measurements.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Yield Analytics</h3>
+        <p>Monitor crop yields with comprehensive data analysis and historical comparisons to optimize productivity.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">🌤️</div>
+        <h3>Weather Tracking</h3>
+        <p>Record and analyze weather patterns to understand their impact on crop performance and planning.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">🚨</div>
+        <h3>Smart Alerts</h3>
+        <p>Get automated notifications for yield anomalies and important agricultural insights via SMS/Email.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>Multi-User Support</h3>
+        <p>Collaborative platform supporting both farmers and administrators with role-based access control.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Easy to Use</h3>
+        <p>Intuitive interface designed for farmers with simple data entry and powerful reporting capabilities.</p>
+    </div>
+</div>
+
+<div class="cta-section">
+    <h2>Ready to Transform Your Farm Management?</h2>
+    <p style="font-size: 1.2em; margin-bottom: 0;">Join thousands of farmers already using our platform to increase productivity</p>
+    <div class="cta-buttons">
+        {% if not session.user_id %}
+            <a href="/register" class="btn">Create Account</a>
+            <a href="/login" class="btn btn-secondary">Sign In</a>
+        {% else %}
+            <a href="/dashboard" class="btn">Go to Dashboard</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

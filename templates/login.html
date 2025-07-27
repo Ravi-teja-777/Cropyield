@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Crop Yield Management{% endblock %}
+
+{% block content %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 50px auto;
+        background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+                    url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .login-header h2 {
+        color: #2c5530;
+        font-size: 2.2em;
+        margin-bottom: 10px;
+    }
+
+    .login-header p {
+        color: #666;
+        font-size: 1.1em;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+    .form-group i {
+        position: absolute;
+        left: 15px;
+        top: 45px;
+        color: #2c5530;
+        font-size: 1.2em;
+    }
+
+    .form-control {
+        padding-left: 45px;
+        height: 55px;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 1.1em;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #2c5530;
+        box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .btn-login {
+        width: 100%;
+        height: 55px;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin: 20px 0;
+        background: linear-gradient(45deg, #2c5530, #4a7c59);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(44, 85, 48, 0.3);
+    }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .login-footer a {
+        color: #2c5530;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="login-container">
+    <div class="login-header">
+        <h2>🌾 Welcome Back</h2>
+        <p>Sign in to your account</p>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <i class="fas fa-envelope"></i>
+            <input type="email" 
+                   class="form-control" 
+                   id="email" 
+                   name="email" 
+                   placeholder="Enter your email"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <i class="fas fa-lock"></i>
+            <input type="password" 
+                   class="form-control" 
+                   id="password" 
+                   name="password" 
+                   placeholder="Enter your password"
+                   required>
+        </div>
+
+        <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+    </form>
+
+    <div class="login-footer">
+        <p>Don't have an account? <a href="/register">Create one here</a></p>
+    </div>
+</div>
+{% endblock %}

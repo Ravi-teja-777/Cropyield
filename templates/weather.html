@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}Weather Data Management{% endblock %}
+
+{% block content %}
+<style>
+    .weather-header {
+        background: linear-gradient(rgba(52, 152, 219, 0.9), rgba(41, 128, 185, 0.9)),
+                    url('https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover;
+        color: white;
+        padding: 50px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .weather-header h1 {
+        font-size: 2.8em;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .weather-form-section {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .form-title {
+        color: #3498db;
+        font-size: 1.6em;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 15px;
+    }
+
+    .weather-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #3498db;
+        font-size: 1em;
+    }
+
+    .form-group i {
+        position: absolute;
+        left: 15px;
+        top: 42px;
+        color: #3498db;
+        font-size: 1.1em;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        outline: none;
+    }
+
+    .weather-submit-btn {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 20px auto;
+    }
+
+    .weather-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+    }
+
+    .weather-data-section {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .data-header {
+        background: #3498db;
+        color: white;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .data-header h2 {
+        margin: 0;
+        font-size: 1.8em;
+    }
+
+    .weather-cards {
+        padding: 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .weather-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        border-left: 5px solid #3498db;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .weather-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .weather-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .weather-location {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .weather-date {
+        color: #7f8c8d;
+        font-size: 0.9em;
+    }
+
+    .weather-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .weather-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+
+    .weather-icon {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1em;
+    }
+
+    .weather-info {
+        flex: 1;
+    }
+
+    .weather-label {
+        font-size: 0.8em;
+        color: #7f8c8d;
+        font-weight: 600;
+    }
+
+    .weather-value {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .temperature-range {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        grid-column: 1 / -1;
+        padding: 15px;
+        background: linear-gradient(45deg, #e74c3c, #f39c12);
+        color: white;
+        border-radius: 10px;
+        font-weight: bold;
+    }
+
+    .temp-max {
+        font-size: 1.4em;
+    }
+
+    .temp-min {
+        font-size: 1.2em;
+        opacity: 0.8;
+    }
+
+    .empty-weather-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #7f8c8d;
+    }
+
+    .empty-weather-state i {
+        font-size: 4em;
+        margin-bottom: 20px;
+        color: #bdc3c7;
+    }
+
+    @media (max-width: 768px) {
+        .weather-header {
+            padding: 30px 20px;
+        }
+        
+        .weather-header h1 {
+            font-size: 2.2em;
+        }
+        
+        .weather-form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .weather-cards {
+            grid-template-columns: 1fr;
+            padding: 20px;
+        }
+        
+        .weather-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="weather-header">
+    <h1><i class="fas fa-cloud-sun"></i> Weather Data Management</h1>
+    <p style="font-size: 1.2em; margin-top: 10px;">Track weather conditions to understand their impact on crop yields</p>
+</div>
+
+<div class="weather-form-section">
+    <h2 class="form-title">
+        <i class="fas fa-plus-circle"></i> Record Weather Data
+    </h2>
+    
+    <form method="POST">
+        <div class="weather-form-grid">
+            <div class="form-group">
+                <label for="location">Location</label>
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" 
+                       class="form-control" 
+                       id="location" 
+                       name="location" 
+                       placeholder="e.g., Village, District"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Date</label>
+                <i class="fas fa-calendar"></i>
+                <input type="date" 
+                       class="form-control" 
+                       id="date" 
+                       name="date" 
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="temperature_max">Max Temperature (°C)</label>
+                <i class="fas fa-thermometer-full"></i>
+                <input type="number" 
+                       class="form-control" 
+                       id="temperature_max" 
+                       name="temperature_max" 
+                       step="0.1"
+                       placeholder="e.g., 35.5"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="temperature_min">Min Temperature (°C)</label>
+                <i class="fas fa-thermometer-empty"></i>
+                <input type="number" 
+                       class="form-control" 
+                       id="temperature_min" 
+                       name="temperature_min" 
+                       step="0.1"
+                       placeholder="e.g., 22.3"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="rainfall">Rainfall (mm)</label>
+                <i class="fas fa-cloud-rain"></i>
+                <input type="number" 
+                       class="form-control" 
+                       id="rainfall" 
+                       name="rainfall" 
+                       step="0.1"
+                       min="0"
+                       placeholder="e.g., 15.5">
+            </div>
+
+            <div class="form-group">
+                <label for="humidity">Humidity (%)</label>
+                <i class="fas fa-tint"></i>
+                <input type="number" 
+                       class="form-control" 
+                       id="humidity" 
+                       name="humidity" 
+                       min="0"
+                       max="100"
+                       placeholder="e.g., 75"
+                       required>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit" class="weather-submit-btn">
+                <i class="fas fa-save"></i>
+                Record Weather Data
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="weather-data-section">
+    <div class="data-header">
+        <h2><i class="fas fa-chart-line"></i> Recent Weather Records</h2>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Latest weather data from various locations</p>
+    </div>
+
+    {% if weather_data %}
+    <div class="weather-cards">
+        {% for weather in weather_data %}
+        <div class="weather-card">
+            <div class="weather-card-header">
+                <div class="weather-location">
+                    <i class="fas fa-map-marker-alt"></i> {{ weather.location }}
+                </div>
+                <div class="weather-date">{{ weather.date }}</div>
+            </div>
+
+            <div class="weather-details">
+                <div class="temperature-range">
+                    <i class="fas fa-thermometer-half"></i>
+                    <span class="temp-max">{{ weather.temperature_max }}°</span>
+                    <span>/</span>
+                    <span class="temp-min">{{ weather.temperature_min }}°</span>
+                    <span style="margin-left: auto; font-size: 0.9em;">Temperature Range</span>
+                </div>
+
+                <div class="weather-item">
+                    <div class="weather-icon">
+                        <i class="fas fa-cloud-rain"></i>
+                    </div>
+                    <div class="weather-info">
+                        <div class="weather-label">Rainfall</div>
+                        <div class="weather-value">{{ weather.rainfall }} mm</div>
+                    </div>
+                </div>
+
+                <div class="weather-item">
+                    <div class="weather-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="weather-info">
+                        <div class="weather-label">Humidity</div>
+                        <div class="weather-value">{{ weather.humidity }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-weather-state">
+        <i class="fas fa-cloud-sun"></i>
+        <h3>No Weather Records</h3>
+        <p>Start tracking weather conditions by adding your first record above.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Set today's date as default
+document.getElementById('date').valueAsDate = new Date();
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const maxTemp = parseFloat(document.getElementById('temperature_max').value);
+    const minTemp = parseFloat(document.getElementById('temperature_min').value);
+    const humidity = parseInt(document.getElementById('humidity').value);
+    const rainfall = parseFloat(document.getElementById('rainfall').value) || 0;
+    
+    if (maxTemp <= minTemp) {
+        e.preventDefault();
+        alert('Maximum temperature must be higher than minimum temperature');
+        return false;
+    }
+    
+    if (maxTemp > 60 || minTemp < -50) {
+        e.preventDefault();
+        alert('Temperature values seem unrealistic. Please check your input.');
+        return false;
+    }
+    
+    if (humidity < 0 || humidity > 100) {
+        e.preventDefault();
+        alert('Humidity must be between 0 and 100 percent');
+        return false;
+    }
+    
+    if (rainfall < 0 || rainfall > 500) {
+        e.preventDefault();
+        alert('Rainfall value seems unrealistic. Please check your input.');
+        return false;
+    }
+});
+</script>
+{% endblock %}
