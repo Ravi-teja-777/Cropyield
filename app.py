@@ -110,6 +110,8 @@ def farmer_required(f):
 def index():
     return render_template('index.html')
 
+from boto3.dynamodb.conditions import Key
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -125,10 +127,13 @@ def register():
             flash('All fields are required')
             return render_template('register.html') if request.form else jsonify({'error': 'All fields required'}), 400
 
-        # Check if user already exists
+        # Check if user already exists using GSI query on email
         try:
-            response = users_table.get_item(Key={'email': email})
-            if 'Item' in response:
+            response = users_table.query(
+                IndexName='email-index',
+                KeyConditionExpression=Key('email').eq(email)
+            )
+            if response.get('Count', 0) > 0:
                 flash('User already exists')
                 return render_template('register.html') if request.form else jsonify({'error': 'User exists'}), 409
         except Exception as e:
@@ -165,37 +170,41 @@ def register():
 
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         data = request.form if request.form else request.get_json()
-        
+
         email = data.get('email')
         password = data.get('password')
-        
+
         if not all([email, password]):
             flash('Email and password required')
             return render_template('login.html') if request.form else jsonify({'error': 'Missing credentials'}), 400
-        
+
         try:
-            response = users_table.get_item(Key={'email': email})
-            if 'Item' not in response:
+            response = users_table.query(
+                IndexName='email-index',
+                KeyConditionExpression=Key('email').eq(email)
+            )
+            if response.get('Count', 0) == 0:
                 flash('Invalid credentials')
                 return render_template('login.html') if request.form else jsonify({'error': 'Invalid credentials'}), 401
-            
-            user = response['Item']
-            
+
+            user = response['Items'][0]
+
             if not user.get('is_active', True):
                 flash('Account deactivated')
                 return render_template('login.html') if request.form else jsonify({'error': 'Account deactivated'}), 401
-            
+
             if check_password_hash(user['password'], password):
                 session['user_id'] = user['user_id']
                 session['username'] = user['username']
                 session['email'] = user['email']
                 session['user_role'] = user.get('role', 'farmer')
                 session['farm_name'] = user.get('farm_name', '')
-                
+
                 if request.form:
                     return redirect(url_for('dashboard'))
                 else:
@@ -211,11 +220,12 @@ def login():
             else:
                 flash('Invalid credentials')
                 return render_template('login.html') if request.form else jsonify({'error': 'Invalid credentials'}), 401
-                
+
         except Exception as e:
+            print(f"Login error: {e}")
             flash('Login failed')
             return render_template('login.html') if request.form else jsonify({'error': str(e)}), 500
-    
+
     return render_template('login.html')
 
 @app.route('/logout')
