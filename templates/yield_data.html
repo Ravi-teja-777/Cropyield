@@ -248,6 +248,7 @@
     <p style="font-size: 1.2em; margin-top: 10px;">Track and analyze your crop productivity</p>
 </div>
 
+<!-- Controls -->
 <div class="yield-controls">
     <div class="filter-section">
         <div class="filter-group">
@@ -260,7 +261,7 @@
                 <option value="barley">Barley</option>
             </select>
         </div>
-        
+
         <div class="filter-group">
             <label for="gradeFilter">Filter by Grade</label>
             <select id="gradeFilter">
@@ -271,7 +272,7 @@
                 <option value="D">Grade D</option>
             </select>
         </div>
-        
+
         <div class="filter-group">
             <label for="dateFilter">Time Period</label>
             <select id="dateFilter">
@@ -282,29 +283,30 @@
             </select>
         </div>
     </div>
-    
+
     <a href="/yield-data/add" class="btn">
         <i class="fas fa-plus"></i> Record New Yield
     </a>
 </div>
 
+<!-- Yield Stats & Table -->
 {% if yields %}
 <div class="yield-stats">
     <div class="stat-card">
         <h3>{{ yields|length }}</h3>
         <p>Total Records</p>
     </div>
-    
+
     <div class="stat-card">
         <h3>{{ yields|sum(attribute='yield_amount')|round(1) }}</h3>
         <p>Total Yield (kg)</p>
     </div>
-    
+
     <div class="stat-card">
         <h3>{{ (yields|sum(attribute='yield_amount') / yields|length)|round(1) if yields else 0 }}</h3>
         <p>Average Yield (kg)</p>
     </div>
-    
+
     <div class="stat-card">
         <h3>{{ yields|selectattr('quality_grade', 'equalto', 'A')|list|length }}</h3>
         <p>Grade A Records</p>
@@ -316,7 +318,7 @@
         <h2><i class="fas fa-table"></i> Yield Records</h2>
         <span>{{ yields|length }} records found</span>
     </div>
-    
+
     <div class="table-responsive">
         <table class="table" id="yieldTable">
             <thead>
@@ -325,7 +327,7 @@
                     <th>Yield Amount</th>
                     <th>Quality Grade</th>
                     <th>Harvest Date</th>
-                    <th>Field ID</th>
+                    <th>Field</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -356,12 +358,16 @@
                         <i class="fas fa-calendar"></i> {{ yield.harvest_date }}
                     </td>
                     <td>
-                        <code>{{ yield.field_id[:8] }}...</code>
+                        {% if yield.field_name %}
+                            <strong>{{ yield.field_name }}</strong>
+                        {% else %}
+                            <code>{{ yield.field_id[:8] }}...</code>
+                        {% endif %}
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-secondary">
+                        <a href="{{ url_for('view_yield', yield_id=yield.yield_id) }}" class="btn btn-sm btn-secondary">
                             <i class="fas fa-eye"></i> View
-                        </button>
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -370,6 +376,7 @@
     </div>
 </div>
 {% else %}
+<!-- Empty State -->
 <div class="empty-state">
     <i class="fas fa-chart-line"></i>
     <h2>No Yield Records Found</h2>
@@ -380,8 +387,8 @@
 </div>
 {% endif %}
 
+<!-- JavaScript for Filtering -->
 <script>
-// Filter functionality
 const cropFilter = document.getElementById('cropFilter');
 const gradeFilter = document.getElementById('gradeFilter');
 const dateFilter = document.getElementById('dateFilter');
@@ -391,37 +398,48 @@ function filterTable() {
     const gradeValue = gradeFilter.value;
     const dateValue = parseInt(dateFilter.value);
     const rows = document.querySelectorAll('#yieldTable tbody tr');
-    
     const now = new Date();
-    
+
+    let visibleCount = 0;
+
     rows.forEach(row => {
         let show = true;
-        
-        // Crop filter
+
         if (cropValue && !row.dataset.crop.includes(cropValue)) {
             show = false;
         }
-        
-        // Grade filter
+
         if (gradeValue && row.dataset.grade !== gradeValue) {
             show = false;
         }
-        
-        // Date filter
+
         if (dateValue) {
             const rowDate = new Date(row.dataset.date);
-            const daysDiff = (now - rowDate) / (1000 * 60 * 60 * 24);
-            if (daysDiff > dateValue) {
+            if (isNaN(rowDate.getTime())) {
                 show = false;
+            } else {
+                const daysDiff = (now - rowDate) / (1000 * 60 * 60 * 24);
+                if (daysDiff > dateValue) {
+                    show = false;
+                }
             }
         }
-        
+
         row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
     });
+
+    document.getElementById('noResultsMsg')?.remove();
+
+    if (visibleCount === 0) {
+        const tbody = document.querySelector('#yieldTable tbody');
+        const noResultsRow = document.createElement('tr');
+        noResultsRow.id = 'noResultsMsg';
+        noResultsRow.innerHTML = `<td colspan="6" style="text-align:center; color: #888;">No results match your filters.</td>`;
+        tbody.appendChild(noResultsRow);
+    }
 }
 
-cropFilter.addEventListener('change', filterTable);
-gradeFilter.addEventListener('change', filterTable);
-dateFilter.addEventListener('change', filterTable);
+[cropFilter, gradeFilter, dateFilter].forEach(el => el.addEventListener('change', filterTable));
 </script>
 {% endblock %}
