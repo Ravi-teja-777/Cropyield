@@ -434,6 +434,9 @@ def yield_data():
         flash(f'Error loading yield data: {str(e)}')
         return render_template('yield_data.html', yields=[])
 
+from decimal import Decimal
+from boto3.dynamodb.conditions import Key
+
 @app.route('/yield-data/add', methods=['GET', 'POST'])
 @login_required
 def add_yield_data():
@@ -462,20 +465,26 @@ def add_yield_data():
             yield_id = str(uuid.uuid4())
             yield_amount_decimal = Decimal(str(yield_amount))
 
-            # Check for yield anomalies
+            # Query historical yields using FieldIndex
             historical_response = yield_data_table.query(
                 IndexName='FieldIndex',
-                KeyConditionExpression='field_id = :field_id',
-                ExpressionAttributeValues={':field_id': field_id}
+                KeyConditionExpression=Key('field_id').eq(field_id)
             )
             historical_yields = historical_response.get('Items', [])
-            
+
+            # Yield anomaly analysis
             if historical_yields:
                 avg_yield = sum(float(y.get('yield_amount', 0)) for y in historical_yields) / len(historical_yields)
                 is_anomaly, percentage_diff = analyze_yield_anomaly(float(yield_amount), avg_yield)
-                
+
                 if is_anomaly:
-                    alert_message = f"Yield Anomaly Detected!\nField ID: {field_id}\nCrop: {crop_type}\nCurrent Yield: {yield_amount}\nHistorical Avg: {avg_yield:.2f}\nDifference: {percentage_diff:.1f}%"
+                    alert_message = (
+                        f"Yield Anomaly Detected!\n"
+                        f"Field ID: {field_id}\nCrop: {crop_type}\n"
+                        f"Current Yield: {yield_amount}\n"
+                        f"Historical Avg: {avg_yield:.2f}\n"
+                        f"Difference: {percentage_diff:.1f}%"
+                    )
                     send_sns_alert(alert_message, "Crop Yield Anomaly Alert")
 
             # Save yield data
@@ -491,10 +500,7 @@ def add_yield_data():
             })
 
             flash('Yield data added successfully')
-            if request.form:
-                return redirect(url_for('yield_data'))
-            else:
-                return jsonify({'message': 'Yield data added successfully', 'yield_id': yield_id}), 201
+            return redirect(url_for('yield_data')) if request.form else jsonify({'message': 'Yield data added successfully', 'yield_id': yield_id}), 201
 
         except Exception as e:
             print(f"Error adding yield data: {e}")
@@ -508,10 +514,9 @@ def add_yield_data():
         else:
             fields_response = fields_table.query(
                 IndexName='FarmerIndex',
-                KeyConditionExpression='farmer_id = :farmer_id',
-                ExpressionAttributeValues={':farmer_id': session['user_id']}
+                KeyConditionExpression=Key('farmer_id').eq(session['user_id'])
             )
-        
+
         farmer_fields = fields_response.get('Items', [])
         return render_template('add_yield_data.html', fields=farmer_fields)
 
@@ -519,6 +524,7 @@ def add_yield_data():
         print(f"Error loading fields for yield data form: {e}")
         flash('Error loading form')
         return redirect(url_for('yield_data'))
+
 
 # ---------------------------------------
 # Weather Data Routes
