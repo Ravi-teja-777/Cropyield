@@ -7,6 +7,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import uuid
 from decimal import Decimal
+from boto3.dynamodb.conditions import Key, Attr
+from decimal import Decimal
 
 # Load environment variables
 load_dotenv()
@@ -466,11 +468,15 @@ def add_yield_data():
             yield_amount_decimal = Decimal(str(yield_amount))
 
             # Query historical yields using FieldIndex
-            historical_response = yield_data_table.query(
-                IndexName='FieldIndex',
-                KeyConditionExpression=Key('field_id').eq(field_id)
-            )
-            historical_yields = historical_response.get('Items', [])
+            try:
+                historical_response = yield_data_table.query(
+                    IndexName='FieldIndex',
+                    KeyConditionExpression=Key('field_id').eq(field_id)
+                )
+                historical_yields = historical_response.get('Items', [])
+            except Exception as e:
+                print(f"[WARN] Could not query FieldIndex: {e}")
+                historical_yields = []
 
             # Yield anomaly analysis
             if historical_yields:
@@ -512,16 +518,22 @@ def add_yield_data():
         if session.get('user_role') == 'admin':
             fields_response = fields_table.scan()
         else:
-            fields_response = fields_table.query(
-                IndexName='FarmerIndex',
-                KeyConditionExpression=Key('farmer_id').eq(session['user_id'])
-            )
+            try:
+                fields_response = fields_table.query(
+                    IndexName='FarmerIndex',
+                    KeyConditionExpression=Key('farmer_id').eq(session['user_id'])
+                )
+            except Exception as e:
+                print(f"[WARN] GSI FarmerIndex missing, fallback to scan: {e}")
+                fields_response = fields_table.scan(
+                    FilterExpression=Attr('farmer_id').eq(session['user_id'])
+                )
 
         farmer_fields = fields_response.get('Items', [])
         return render_template('add_yield_data.html', fields=farmer_fields)
 
     except Exception as e:
-        print(f"Error loading fields for yield data form: {e}")
+        print(f"Error loading fields for yield data form: {type(e).__name__} - {e}")
         flash('Error loading form')
         return redirect(url_for('yield_data'))
 
